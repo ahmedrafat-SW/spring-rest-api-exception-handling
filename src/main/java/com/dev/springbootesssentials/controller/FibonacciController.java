@@ -1,5 +1,6 @@
 package com.dev.springbootesssentials.controller;
 
+import com.dev.springbootesssentials.exception.FibonacciInputException;
 import com.dev.springbootesssentials.exception.FibonacciOutOfRangeException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,8 +41,13 @@ public class FibonacciController {
     }
 
     @PostMapping(path = "createsequence")
-    public ResponseEntity<String> createFibonacciSequence(@RequestParam int n) throws IOException{
-        List<Integer> sequence = createSequence(n);
+    public ResponseEntity<String> createFibonacciSequence(@RequestParam String n) throws IOException{
+        List<Integer> sequence ;
+        try{
+            sequence= createSequence(n);
+        }catch (FibonacciInputException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
         return ResponseEntity.ok(storeSequence(sequence));
     }
 
@@ -55,7 +61,13 @@ public class FibonacciController {
         return fileName;
     }
 
-    private List<Integer> createSequence(int n) {
+    private List<Integer> createSequence(String str) throws FibonacciInputException{
+        int n= 0;
+        try {
+           n = Integer.parseInt(str);
+        }catch (NumberFormatException e){
+            throw new FibonacciInputException("Invalid Input. Please enter a valid number");
+        }
         List<Integer> sequence = new ArrayList<>();
         sequence.add(0);
         int prev= 0;
