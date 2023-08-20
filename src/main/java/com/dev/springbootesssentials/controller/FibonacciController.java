@@ -62,7 +62,7 @@ public class FibonacciController {
     }
 
     private List<Integer> createSequence(String str) throws FibonacciInputException{
-        int n= 0;
+        int n;
         try {
            n = Integer.parseInt(str);
         }catch (NumberFormatException e){
@@ -73,7 +73,7 @@ public class FibonacciController {
         int prev= 0;
         int curr= 1;
         int index= 1;
-        int next = 0;
+        int next;
         while (index <= n){
             sequence.add(curr);
             next = prev + curr;
