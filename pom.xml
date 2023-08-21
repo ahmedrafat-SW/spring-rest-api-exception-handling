@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.dev</groupId>
-    <artifactId>Spring-boot-esssentials</artifactId>
+    <artifactId>Spring-boot-api-Exception-handling</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Spring-boot-esssentials</name>
     <description>Spring-boot-esssentials</description>
