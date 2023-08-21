@@ -1,5 +1,6 @@
 package com.dev.springbootesssentials.controller;
 
+import com.dev.springbootesssentials.exception.DivisionByZeroException;
 import com.dev.springbootesssentials.exception.FibonacciInputException;
 import com.dev.springbootesssentials.exception.FibonacciOutOfRangeException;
 import org.springframework.http.HttpStatus;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 @RequestMapping(path = "fibonacci")
 public class FibonacciController {
 
-    @GetMapping(path = "findnumber")
+    @GetMapping(path = "findNumber")
     public ResponseEntity<String> createFibonacciNumber(@RequestParam int position) {
         int fib;
         try {
@@ -28,7 +29,7 @@ public class FibonacciController {
         return ResponseEntity.ok(String.valueOf(fib));
     }
 
-    @GetMapping("filename")
+    @GetMapping("fileName")
     public ResponseEntity<String> getFibonacciSequence(@RequestParam String filename){
         String sequence;
         try {
@@ -40,15 +41,40 @@ public class FibonacciController {
         return ResponseEntity.ok(sequence);
     }
 
-    @PostMapping(path = "createsequence")
+    @PostMapping(path = "createSequence")
     public ResponseEntity<String> createFibonacciSequence(@RequestParam String n) throws IOException{
         List<Integer> sequence ;
         try{
-            sequence= createSequence(n);
+            sequence= createSequence(n, null);
         }catch (FibonacciInputException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }catch (NullPointerException e){
+            return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT)
+                    .body("NullPointerException:(");
         }
         return ResponseEntity.ok(storeSequence(sequence));
+    }
+
+    @GetMapping(path = "findRatio")
+    public ResponseEntity<String> getFibonacciRatio(@RequestParam int n){
+        int curr;
+        int prev;
+        double ratio;
+        try{
+            curr= fibonacci(n);
+            prev= fibonacci(n-1);
+            ratio= (double) curr / prev;
+        }catch (ArithmeticException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("0");
+        }catch (FibonacciOutOfRangeException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
+        if (prev <= 0){
+            return ResponseEntity.ok("0");
+        }
+        return ResponseEntity.ok(String.valueOf(ratio));
     }
 
     private String storeSequence(List<Integer> sequence) throws IOException {
@@ -61,14 +87,15 @@ public class FibonacciController {
         return fileName;
     }
 
-    private List<Integer> createSequence(String str) throws FibonacciInputException{
+    private List<Integer> createSequence(String str, List<Integer> sequence) throws FibonacciInputException{
         int n;
         try {
            n = Integer.parseInt(str);
         }catch (NumberFormatException e){
             throw new FibonacciInputException("Invalid Input. Please enter a valid number");
         }
-        List<Integer> sequence = new ArrayList<>();
+        if (sequence == null)
+            sequence = new ArrayList<>();
         sequence.add(0);
         int prev= 0;
         int curr= 1;
@@ -94,7 +121,8 @@ public class FibonacciController {
         if (position <= 1 )
             return position;
         if(position > 9){
-            throw new FibonacciOutOfRangeException("The enter number "+position+" is too large");
+            throw new FibonacciOutOfRangeException("The enter number "
+                    +position+" is too large. Please enter number in range of 1 to 9");
         }
         return fibonacci(position -1) + fibonacci(position -2);
     }
